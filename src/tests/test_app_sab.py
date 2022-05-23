@@ -14,7 +14,7 @@ st.image(img, use_column_width='auto')
 
 st.title('Activities for Rémi !')
 st.write("""
-            Hello Remy! What do you want to do today ?
+            Hello Remi! What do you want to do today ?
          """)
 
 # --- Choix des features ---
