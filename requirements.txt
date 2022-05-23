@@ -1,3 +1,4 @@
 selenium
+watchdog
 streamlit
 streamlit-folium
