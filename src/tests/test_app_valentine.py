@@ -8,7 +8,7 @@ df = pd.read_csv("/Users/valentinesallet/Desktop/Ingé_2/ESME/Data_Tools/USA/pro
                  on_bad_lines='skip')
 st.set_page_config(layout='wide')
 
-img = Image.open("usa_0.jpeg")
+img = Image.open("../images/usa_0.jpeg")
 st.image(img, use_column_width='auto')
 
 st.title('Activities for Rémy !')
