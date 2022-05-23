@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Apr 15 15:12:03 2022
+Created on Mon May 23 10:23:32 2022
 
 @author: kju78
 """
@@ -18,16 +18,13 @@ options.headless = True  #etre prive
 options.add_argument("--window-size=1920,1080")  #dimension fenetre
 options.add_argument("start-maximized")  #mise en plein ecran de la fenetre
 
-driver = webdriver.Chrome("../chromedriver")  # adresse driver chrome
+driver = webdriver.Chrome("C:/Users/kju78/Documents/ESME Sudria/Ingé 2/ESME Sudria - Ingé 2/Projet - Machine Learning Immobilier/Scraping/chromedriver_win32/chromedriver")  # adresse driver chrome
 
 # =============================================================================
-# Variables a definir :
+# Variables :
 # =============================================================================
 
-debut = 1 #variable pour indentation nombre de page parcourues - a changer
-fin = 1
-
-page = debut #a laisser 
+villes = ["new-york","las-vegas","boston","san-francisco","washington","chicago","los-angeles","miami","atlanta"]
 
 # =============================================================================
 # Listes de stockage :
@@ -51,33 +48,21 @@ adresses_list = []
 # Scraping :
 # =============================================================================
 
-def scrapping_url (debut, fin, page) :
+def scrapping_url (villes) :
     try :
-        while debut <= page <= fin :
-            
-            # url = 'https://www.civitatis.com/fr/new-york/?page=%d'%(page)
-            # url = 'https://www.civitatis.com/fr/las-vegas/?page=%d'%(page)
-            # url = 'https://www.civitatis.com/fr/boston/?page=%d'%(page)
-            # url = 'https://www.civitatis.com/fr/san-francisco/?page=%d'%(page) #2
-            # url = 'https://www.civitatis.com/fr/washington/?page=%d'%(page) #1
-            # url = 'https://www.civitatis.com/fr/chicago/?page=%d'%(page) #1
-            # url = 'https://www.civitatis.com/fr/los-angeles/?page=%d'%(page) #2
-            # url = 'https://www.civitatis.com/fr/miami/?page=%d'%(page) #3
-            url = 'https://www.civitatis.com/fr/atlanta/' #1
-
-            
+        
+        for ville in villes :
+                    
+            url = 'https://www.civitatis.com/fr/%s/' %(ville)
             driver.get(url)
             
             time.sleep(5)
             
             
             urls = driver.find_elements_by_xpath("//a[@class='ga-trackEvent-element _activity-link']")
-            
             prices = driver.find_elements_by_xpath("//span[@class='comfort-card__price__text']")
             nb_visits = driver.find_elements_by_xpath("//span[@class='comfort-card__traveler-count _full']")
             
-            
-            page +=1
             
             for u in range(len(urls)): 
                 url = urls[u].get_attribute('href')
@@ -91,12 +76,14 @@ def scrapping_url (debut, fin, page) :
                 nb_visit = nb_visits[nb]
                 nb_visits_list.append(nb_visit.text)
             
+            
+            adresses_list.append(ville)
                 
 
     except WebDriverException:
         pass
     
-    return urls_list, prices_list, nb_visits_list 
+    return urls_list, prices_list, nb_visits_list, adresses_list
 
 def scrapping (urls_list) :
     
@@ -150,19 +137,14 @@ def scrapping (urls_list) :
                 language = driver.find_element_by_xpath("//span[@class='a-feature a-feature-lang o-advantages-icon-lang']")
                 languages_list.append(language.text)
             except NoSuchElementException :
-                languages_list.append(-1)
-                
-            #adress = "NewYork"
-            adress = "Atlanta"
-            adresses_list.append(adress) 
+                languages_list.append(-1) 
             
             compteur += 1
         
         except WebDriverException : 
             pass 
     
-    return titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, adresses_list
-    #return titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list
+    return titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list
     
 
 # =============================================================================
@@ -172,8 +154,8 @@ def scrapping (urls_list) :
 
 def main ():
     
-    urls_list, prices_list, nb_visits_list  = scrapping_url(debut, fin, page)
-    titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list = scrapping(urls_list)
+    urls_list, prices_list, nb_visits_list, adresses_list = scrapping_url(villes)
+    titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list = scrapping(urls_list)
    
     # =============================================================================
     # Création du dataframe :
@@ -182,14 +164,14 @@ def main ():
     driver.close()  #fermeture de la fenetre de scraping
     
     df = pd.DataFrame(list(zip(titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list, annulation_list, durations_list, languages_list, adresses_list)),columns=['Title', 'Nb rating', 'Prices', 'Nb visits', 'Rating', 'Annulation', 'Duration', 'Language', 'Adress'])  #creation d'une base de donnees
-    #df = pd.DataFrame(list(zip(titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list)),columns=['Title', 'Nb rating', 'Prices', 'Nb visits', 'Rating'])  #creation d'une base de donnees
     
     print(df)  #affichage de la base
-    df.to_csv(r'Atlanta.csv',index=False)  #converti base pandas en fichier csv
+    df.to_csv(r'C:\Users\kju78\Documents\ESME Sudria\Ingé 2\ESME Sudria - Ingé 2\Hands on Data Tools\dataToolsBDDTest.csv',index=False)  #converti base pandas en fichier csv
 
 
 
 main()
+
 
 
 
