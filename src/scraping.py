@@ -44,7 +44,7 @@ images_list = []
 # =============================================================================
 
 # Scrap des liens d'annonces
-def scrapping_url(debut):
+def scraping_url(debut):
     cities_and_end_page_mat = []
 
     try:
@@ -98,7 +98,7 @@ def scrapping_url(debut):
     return urls_list, prices_list, nb_visits_list
 
 # Scrap du contenu de chaque annonces scrapées
-def scrapping(urls_list):
+def scraping(urls_list):
     compteur = 1
     print('itérations nécessaires : ', len(urls_list) + 1)
 
@@ -156,7 +156,8 @@ def scrapping(urls_list):
                 languages_list.append(-1)
 
             # Ville de l'activité
-            city = urls_list[0].split("/")[4]
+            city = urls_list[url].split("/")[4]
+            print(city)
             cities_list.append(city)
 
             # recupération des coordonnées lat et long pour la carte de l'app
@@ -195,7 +196,6 @@ def scrapping(urls_list):
                     "// *[ @ id = 'slide-container'] / div[4] / figure / img")
                 image_url = image.get_attribute("src")
                 images_list.append(image_url)
-                print(image_url)
             except NoSuchElementException:
                 images_list.append(-1)
 
@@ -211,8 +211,8 @@ def scrapping(urls_list):
 # =============================================================================
 
 def main():
-    urls_list, prices_list, nb_visits_list = scrapping_url(debut)
-    titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list = scrapping(
+    urls_list, prices_list, nb_visits_list = scraping_url(debut)
+    titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list = scraping(
         urls_list)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
