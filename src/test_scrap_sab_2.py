@@ -33,10 +33,11 @@ driver = webdriver.Chrome("../chromedriver")  # adresse driver chrome
 # Variables a definir :
 # =============================================================================
 
-cities = ["new-york","las-vegas","boston","san-francisco","washington","chicago","los-angeles","miami","atlanta"]
+#cities = ["new-york","las-vegas","boston","san-francisco","washington","chicago","los-angeles","miami","atlanta"]
+cities = ["boston","san-francisco","washington","chicago","los-angeles","miami"]
 
 debut = 1  # variable pour indentation nombre de page parcourues - a changer
-fin = 5
+#fin = 1 #changera plus bas dans le code si y'a d'autres pages
 
 page = debut  # a laisser
 
@@ -62,43 +63,55 @@ coord_list = []
 # Scraping :
 # =============================================================================
 
-def scrapping_url(debut, fin, page):
+def scrapping_url(debut, page):
 
+    cities_and_end_page_mat = []
     try:
-        while debut <= page <= fin:
+        for city in cities:
+            #on récupère le nombre de pages totales
+            try :
+                url = 'https://www.civitatis.com/fr/%s' % (city)
+                driver.get(url)
 
-            # url = 'https://www.civitatis.com/fr/new-york/?page=%d'%(page) #5
-            # url = 'https://www.civitatis.com/fr/las-vegas/?page=%d'%(page) #3
-            url = 'https://www.civitatis.com/fr/boston/?page=%d'%(page) #1
-            # url = 'https://www.civitatis.com/fr/san-francisco/?page=%d'%(page) #2
-            # url = 'https://www.civitatis.com/fr/washington/?page=%d'%(page) #1
-            # url = 'https://www.civitatis.com/fr/chicago/?page=%d'%(page) #1
-            # url = 'https://www.civitatis.com/fr/los-angeles/?page=%d'%(page) #2
-            # url = 'https://www.civitatis.com/fr/miami/?page=%d'%(page) #3
-            # url = 'https://www.civitatis.com/fr/atlanta/'  # 1
+                identify_page = driver.find_element_by_class_name("last-element")
+                fin = int(identify_page.get_attribute("data-page"))
+            except NoSuchElementException:
+                fin = 1
+            cities_and_end_page_mat.append([city, fin])
+            print("pour ", city, " il y a ", fin, " pages")
 
-            driver.get(url)
+        print(cities_and_end_page_mat)
 
-            time.sleep(5)
+        for city_and_page in cities_and_end_page_mat:
+            city = city_and_page[0]
+            fin = city_and_page[1]
+            while debut <= page <= fin:
+                print(page)
+                url = 'https://www.civitatis.com/fr/%s' % (city) + '/?page=%d' % (page)
+                print(url)
+                driver.get(url)
 
-            urls = driver.find_elements_by_xpath("//a[@class='ga-trackEvent-element _activity-link']")
+                time.sleep(5)
 
-            prices = driver.find_elements_by_xpath("//span[@class='comfort-card__price__text']")
-            nb_visits = driver.find_elements_by_xpath("//span[@class='comfort-card__traveler-count _full']")
+                urls = driver.find_elements_by_xpath("//a[@class='ga-trackEvent-element _activity-link']")
 
-            page += 1
+                prices = driver.find_elements_by_xpath("//span[@class='comfort-card__price__text']")
+                nb_visits = driver.find_elements_by_xpath("//span[@class='comfort-card__traveler-count _full']")
 
-            for u in range(len(urls)):
-                url = urls[u].get_attribute('href')
-                urls_list.append(str(url))
+                page += 1
 
-            for p in range(len(prices)):
-                price = prices[p]
-                prices_list.append(price.text)
 
-            for nb in range(len(nb_visits)):
-                nb_visit = nb_visits[nb]
-                nb_visits_list.append(nb_visit.text)
+                for u in range(len(urls)):
+                    url = urls[u].get_attribute('href')
+                    urls_list.append(str(url))
+
+                for p in range(len(prices)):
+                    price = prices[p]
+                    prices_list.append(price.text)
+
+                for nb in range(len(nb_visits)):
+                    nb_visit = nb_visits[nb]
+                    nb_visits_list.append(nb_visit.text)
 
 
 
@@ -207,7 +220,7 @@ def scrapping(urls_list):
 # =============================================================================
 
 def main():
-    urls_list, prices_list, nb_visits_list = scrapping_url(debut, fin, page)
+    urls_list, prices_list, nb_visits_list = scrapping_url(debut, page)
     titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list = scrapping(
         urls_list)
 
@@ -248,7 +261,7 @@ def main():
     # df = pd.DataFrame(list(zip(titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list)),columns=['Title', 'Nb rating', 'Prices', 'Nb visits', 'Rating'])  #creation d'une base de donnees
 
     print(df)  # affichage de la base
-    df.to_csv(r'boston.csv', index=False)  # converti base pandas en fichier csv
+    df.to_csv(r'us_activities.csv', index=False)  # converti base pandas en fichier csv
 
 
 main()
