@@ -215,9 +215,9 @@ def main():
     titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list = scrapping(
         urls_list)
 
-    # =============================================================================
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Séparation des coordonnées Latitude et Longitude en 2 listes :
-    # =============================================================================
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     lat_list = []
     lon_list = []
@@ -236,9 +236,9 @@ def main():
         lon_list.append(float(lon))
         lon = ''
 
-    # =============================================================================
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
     # Création du dataframe :
-    # =============================================================================
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
 
     driver.close()  # fermeture de la fenetre de scraping
 
