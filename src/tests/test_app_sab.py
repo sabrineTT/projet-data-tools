@@ -29,6 +29,8 @@ col1, col2, col3 = my_form.columns(3)
 price = col1.slider("Price", 0, 5000)
 Rating = col2.slider("Rating", 0, 10)
 Language = col3.multiselect("Language : ", ['Anglais', 'Français', 'Espagnol'])
+affichage_carte = col1.checkbox("Carte")
+affichage_liste = col2.checkbox("Liste")
 
 # --- Traitement des données des features ---
 # La langue
@@ -41,8 +43,6 @@ for i in range(len(Language)):
         Language[i] = 3
 
 submit = my_form.form_submit_button(label="Submit this form")
-affichage_carte = st.checkbox("Carte")
-affichage_liste = st.checkbox("Liste")
 
 # --- Affichage des résultats ---
 if submit:
