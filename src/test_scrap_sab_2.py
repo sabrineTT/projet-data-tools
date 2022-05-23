@@ -1,19 +1,4 @@
-"""try:
-    coord_class = driver.find_element_by_xpath(
-        "//div[@class='m-map js-map-new js-static-on-create loaded-map']")
-    coord = coord_class.get_attribute("data-markers")
-    coord_list.append(coord.text)
-except NoSuchElementException:
-    coord_list.append(-1)"""
-
-#rajouter l'url de l'image d'entrée ?
-
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Apr 15 15:12:03 2022
-
-@author: kju78
-"""
+# rajouter l'url de l'image d'entrée ?
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -33,11 +18,10 @@ driver = webdriver.Chrome("../chromedriver")  # adresse driver chrome
 # Variables a definir :
 # =============================================================================
 
-#cities = ["new-york","las-vegas","boston","san-francisco","washington","chicago","los-angeles","miami","atlanta"]
-cities = ["boston","san-francisco","washington","chicago","los-angeles","miami"]
+cities = ["new-york", "las-vegas", "boston", "san-francisco", "washington", "chicago", "los-angeles", "miami", "atlanta"]
 
 debut = 1  # variable pour indentation nombre de page parcourues - a changer
-#fin = 1 #changera plus bas dans le code si y'a d'autres pages
+# fin = 1 #changera plus bas dans le code si y'a d'autres pages
 
 page = debut  # a laisser
 
@@ -58,18 +42,18 @@ durations_list = []
 languages_list = []
 cities_list = []
 coord_list = []
+images_list = []
 
 # =============================================================================
 # Scraping :
 # =============================================================================
 
 def scrapping_url(debut, page):
-
     cities_and_end_page_mat = []
     try:
         for city in cities:
-            #on récupère le nombre de pages totales
-            try :
+            # on récupère le nombre de pages totales
+            try:
                 url = 'https://www.civitatis.com/fr/%s' % (city)
                 driver.get(url)
 
@@ -80,15 +64,12 @@ def scrapping_url(debut, page):
             cities_and_end_page_mat.append([city, fin])
             print("pour ", city, " il y a ", fin, " pages")
 
-        print(cities_and_end_page_mat)
-
         for city_and_page in cities_and_end_page_mat:
+            page = 1
             city = city_and_page[0]
             fin = city_and_page[1]
             while debut <= page <= fin:
-                print(page)
                 url = 'https://www.civitatis.com/fr/%s' % (city) + '/?page=%d' % (page)
-                print(url)
                 driver.get(url)
 
                 time.sleep(5)
@@ -99,7 +80,6 @@ def scrapping_url(debut, page):
                 nb_visits = driver.find_elements_by_xpath("//span[@class='comfort-card__traveler-count _full']")
 
                 page += 1
-
 
                 for u in range(len(urls)):
                     url = urls[u].get_attribute('href')
@@ -176,7 +156,7 @@ def scrapping(urls_list):
             city = urls_list[0].split("/")[4]
             cities_list.append(city)
 
-            #recupération des coordonnées lat et long pour la carte de l'app
+            # recupération des coordonnées lat et long pour la carte de l'app
             try:
                 coord_class = driver.find_element_by_id(
                     "meeting-point-map-container")
@@ -184,7 +164,7 @@ def scrapping(urls_list):
                 char_to_delete = ['[', ']', '{', '}', '"']
                 for char in char_to_delete:
                     coord = coord.replace(char, '')
-                coord = coord.split(",", 2)  #retourne une liste, par ex : ['lat:33.7633886', 'lng:-84.3952799']
+                coord = coord.split(",", 2)  # retourne une liste, par ex : ['lat:33.7633886', 'lng:-84.3952799']
                 coord_list.append(coord[:2])
             except NoSuchElementException:
                 if city == 'atlanta':
@@ -206,12 +186,22 @@ def scrapping(urls_list):
                 elif city == 'miami':
                     coord_list.append(['lat:25.7616761', 'lng:-80.1940987'])
 
+            try:
+                image = driver.find_element_by_xpath(
+                    "// *[ @ id = 'slide-container'] / div[4] / figure / img")
+                image_url = image.get_attribute("src")
+                images_list.append(image_url)
+                print(image_url)
+            except NoSuchElementException:
+                images_list.append(-1)
+
+
             compteur += 1
 
         except WebDriverException:
             pass
 
-    return titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list
+    return titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list
     # return titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list
 
 
@@ -221,7 +211,7 @@ def scrapping(urls_list):
 
 def main():
     urls_list, prices_list, nb_visits_list = scrapping_url(debut, page)
-    titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list = scrapping(
+    titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list = scrapping(
         urls_list)
 
     # =============================================================================
@@ -234,16 +224,16 @@ def main():
     lon = ''
 
     for coords in coord_list:
-        #lat_list.append(coords[0])
-        #lon_list.append(coords[1])
+        # lat_list.append(coords[0])
+        # lon_list.append(coords[1])
         for i in coords[0]:
             if i.isnumeric() == True or i == '.' or i == '-':
-                lat+=i
+                lat += i
         lat_list.append(float(lat))
         lat = ''
         for i in coords[1]:
             if i.isnumeric() == True or i == '.' or i == '-':
-                lon+=i
+                lon += i
         lon_list.append(float(lon))
         lon = ''
 
@@ -255,9 +245,9 @@ def main():
 
     df = pd.DataFrame(list(
         zip(titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list, annulation_list, durations_list,
-            languages_list, cities_list, lat_list, lon_list)),
-                      columns=['Title', 'Nb rating', 'Prices', 'Nb visits', 'Rating', 'Annulation', 'Duration',
-                               'Language', 'City', 'lat', 'lon'])  # creation d'une base de donnees
+            languages_list, cities_list, lat_list, lon_list, images_list)),
+        columns=['Title', 'Nb rating', 'Prices', 'Nb visits', 'Rating', 'Annulation', 'Duration',
+                 'Language', 'City', 'lat', 'lon', 'image'])  # creation d'une base de donnees
     # df = pd.DataFrame(list(zip(titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list)),columns=['Title', 'Nb rating', 'Prices', 'Nb visits', 'Rating'])  #creation d'une base de donnees
 
     print(df)  # affichage de la base
