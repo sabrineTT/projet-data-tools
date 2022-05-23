@@ -1,5 +1,3 @@
-# rajouter l'url de l'image d'entrée ?
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
@@ -18,16 +16,13 @@ driver = webdriver.Chrome("../chromedriver")  # adresse driver chrome
 # Variables a definir :
 # =============================================================================
 
-cities = ["new-york", "las-vegas", "boston", "san-francisco", "washington", "chicago", "los-angeles", "miami", "atlanta"]
-
-debut = 1  # variable pour indentation nombre de page parcourues - a changer
-# fin = 1 #changera plus bas dans le code si y'a d'autres pages
-
-page = debut  # a laisser
+debut = 1  # variable pour indentation nombre de page parcourues
 
 # =============================================================================
 # Listes de stockage :
 # =============================================================================
+
+cities = ["new-york", "las-vegas", "boston", "san-francisco", "washington", "chicago", "los-angeles", "miami", "atlanta"]
 
 urls_list = []
 
@@ -48,11 +43,13 @@ images_list = []
 # Scraping :
 # =============================================================================
 
-def scrapping_url(debut, page):
+# Scrap des liens d'annonces
+def scrapping_url(debut):
     cities_and_end_page_mat = []
+
     try:
+        # on récupère le nombre de pages totales de chaque ville
         for city in cities:
-            # on récupère le nombre de pages totales
             try:
                 url = 'https://www.civitatis.com/fr/%s' % (city)
                 driver.get(url)
@@ -64,10 +61,12 @@ def scrapping_url(debut, page):
             cities_and_end_page_mat.append([city, fin])
             print("pour ", city, " il y a ", fin, " pages")
 
+        # on récupère les urls de chaque annonce ainsi que les prix et les nombre de visites faites par activités
         for city_and_page in cities_and_end_page_mat:
             page = 1
             city = city_and_page[0]
             fin = city_and_page[1]
+
             while debut <= page <= fin:
                 url = 'https://www.civitatis.com/fr/%s' % (city) + '/?page=%d' % (page)
                 driver.get(url)
@@ -93,39 +92,39 @@ def scrapping_url(debut, page):
                     nb_visit = nb_visits[nb]
                     nb_visits_list.append(nb_visit.text)
 
-
-
     except WebDriverException:
         pass
 
     return urls_list, prices_list, nb_visits_list
 
-
+# Scrap du contenu de chaque annonces scrapées
 def scrapping(urls_list):
     compteur = 1
     print('itérations nécessaires : ', len(urls_list) + 1)
 
     for url in range(len(urls_list)):  # parcours de la liste des liens recoltes
-
         try:
-
             driver.get(urls_list[url])
 
             print('itération actuelle : ', compteur, '/', len(urls_list) + 1)
 
             time.sleep(5)
+
+            # Titre des annonces
             try:
                 title = driver.find_element_by_xpath("//h1[@class='a-title-activity']")
                 titles_list.append(title.text)
             except NoSuchElementException:
                 titles_list.append(-1)
 
+            # Nombre de personnes ayant noté l'activité
             try:
                 nb_rating = driver.find_element_by_xpath("//div[@class='a-text--rating-total']/a")
                 nb_ratings_list.append(nb_rating.text)
             except NoSuchElementException:
                 nb_ratings_list.append(-1)
 
+            # Notation de l'actvité
             try:
                 rating = driver.find_element_by_xpath(
                     "//div[@class='o-rating__title o-activity-header__rating__title']/a")
@@ -133,12 +132,14 @@ def scrapping(urls_list):
             except NoSuchElementException:
                 ratings_list.append(-1)
 
+            # Est-ce annulable ? Sous quelles conditions ?
             try:
                 annulation = driver.find_element_by_xpath("//div[@class='p']")
                 annulation_list.append(annulation.text)
             except NoSuchElementException:
                 annulation_list.append(-1)
 
+            # Durée de l'activité
             try:
                 duration = driver.find_element_by_xpath(
                     "//li[@class='o-advantages--header__element  --important  o-advantages-icon-duration ']/a")
@@ -146,6 +147,7 @@ def scrapping(urls_list):
             except NoSuchElementException:
                 durations_list.append(-1)
 
+            # Langue de l'activité
             try:
                 language = driver.find_element_by_xpath(
                     "//span[@class='a-feature a-feature-lang o-advantages-icon-lang']")
@@ -153,6 +155,7 @@ def scrapping(urls_list):
             except NoSuchElementException:
                 languages_list.append(-1)
 
+            # Ville de l'activité
             city = urls_list[0].split("/")[4]
             cities_list.append(city)
 
@@ -186,6 +189,7 @@ def scrapping(urls_list):
                 elif city == 'miami':
                     coord_list.append(['lat:25.7616761', 'lng:-80.1940987'])
 
+            # Photo de l'activité
             try:
                 image = driver.find_element_by_xpath(
                     "// *[ @ id = 'slide-container'] / div[4] / figure / img")
@@ -195,22 +199,19 @@ def scrapping(urls_list):
             except NoSuchElementException:
                 images_list.append(-1)
 
-
             compteur += 1
 
         except WebDriverException:
             pass
 
     return titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list
-    # return titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list
-
 
 # =============================================================================
 # Main :
 # =============================================================================
 
 def main():
-    urls_list, prices_list, nb_visits_list = scrapping_url(debut, page)
+    urls_list, prices_list, nb_visits_list = scrapping_url(debut)
     titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list = scrapping(
         urls_list)
 
@@ -224,8 +225,6 @@ def main():
     lon = ''
 
     for coords in coord_list:
-        # lat_list.append(coords[0])
-        # lon_list.append(coords[1])
         for i in coords[0]:
             if i.isnumeric() == True or i == '.' or i == '-':
                 lat += i
@@ -248,10 +247,8 @@ def main():
             languages_list, cities_list, lat_list, lon_list, images_list)),
         columns=['Title', 'Nb rating', 'Prices', 'Nb visits', 'Rating', 'Annulation', 'Duration',
                  'Language', 'City', 'lat', 'lon', 'image'])  # creation d'une base de donnees
-    # df = pd.DataFrame(list(zip(titles_list, nb_ratings_list, prices_list, nb_visits_list, ratings_list)),columns=['Title', 'Nb rating', 'Prices', 'Nb visits', 'Rating'])  #creation d'une base de donnees
 
     print(df)  # affichage de la base
     df.to_csv(r'us_activities.csv', index=False)  # converti base pandas en fichier csv
-
 
 main()
