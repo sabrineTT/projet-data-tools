@@ -18,7 +18,7 @@ options.headless = True  #etre prive
 options.add_argument("--window-size=1920,1080")  #dimension fenetre
 options.add_argument("start-maximized")  #mise en plein ecran de la fenetre
 
-driver = webdriver.Chrome("../chromedriver")  # adresse driver chrome
+driver = webdriver.Chrome("../../chromedriver")  # adresse driver chrome
 
 # =============================================================================
 # Variables :
