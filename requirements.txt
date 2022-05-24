@@ -2,3 +2,4 @@ selenium
 watchdog
 streamlit
 streamlit-folium
+deep-translator
