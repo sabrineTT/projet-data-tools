@@ -34,7 +34,7 @@ option_city = my_form.selectbox('Where are you ?',
 col1, col2, col3 = my_form.columns(3)
 price = col1.slider("Price", 0, 5000)
 Rating = col2.slider("Rating", 0, 10)
-Language = col3.multiselect("Language : ", ['Anglais', 'Français', 'Espagnol'])
+Language = col3.multiselect("Language : ", ['English', 'French', 'Spanish'])
 affichage = col1.radio("Which display would you like ?", ["Map", "List"])
 
 submit = my_form.form_submit_button("Let's have fun !")
@@ -42,11 +42,11 @@ submit = my_form.form_submit_button("Let's have fun !")
 # --- Traitement des données des features selectionnées ---
 # La langue - On change les données textes en chiffres
 for i in range(len(Language)):
-    if Language[i] == 'Anglais':
+    if Language[i] == 'English':
         Language[i] = 1
-    elif Language[i] == 'Français':
+    elif Language[i] == 'French':
         Language[i] = 2
-    elif Language[i] == 'Espagnol':
+    elif Language[i] == 'Spanish':
         Language[i] = 3
 
 # Si l'utilisateur ne spécifie pas de langue, on les prend toutes en compte
@@ -76,11 +76,16 @@ def display_map(map):
                    (df['Rating'] >= Rating) &
                    (df['Language'].str.contains(pat=str(j))) &
                    (df['City'] == option_city)]['Title']
+        prices = df[(df["Prices"] <= price) &
+                    (df['Rating'] >= Rating) &
+                    (df['Language'].str.contains(pat=str(j))) &
+                    (df['City'] == option_city)]['Prices']
 
-    for lat, lon, title in zip(latitudes, longitudes, titles):
+    for lat, lon, title, act_price in zip(latitudes, longitudes, titles, prices):
+        popup_text = str(act_price)+"€"
         folium.Marker(
             [lat, lon],
-            popup=title,
+            popup=popup_text,
             tooltip=title,
             icon=folium.Icon(icon="cloud")
         ).add_to(map)
@@ -130,6 +135,7 @@ def display_list():
                 st.write("Price: ", str(act_price), "€")
                 st.write("Rating: ", str(rating), "/10")
                 st.write("Duration: ", duration)
+                st.write("Cancellable: ", annulation)
 
 # --- Affichage des résultats ---
 if submit:
