@@ -13,12 +13,6 @@ options.add_argument("start-maximized")  # mise en plein ecran de la fenetre
 driver = webdriver.Chrome("../chromedriver")  # adresse driver chrome
 
 # =============================================================================
-# Variables a definir :
-# =============================================================================
-
-debut = 1  # variable pour indentation nombre de page parcourues
-
-# =============================================================================
 # Listes de stockage :
 # =============================================================================
 
@@ -44,8 +38,18 @@ images_list = []
 # =============================================================================
 
 # Scrap des liens d'annonces
-def scraping_url(debut):
+def scraping_url():
+    """
+    Scraping function - 1st part :
+    Get the URLs of all activities, by first getting the exact number of pages for each city
+    
+    No parameter
+    
+    Returns 3 lists : the URLs of the activities, their prices and the number of visits each had   
+    """
+    
     cities_and_end_page_mat = []
+    debut = 1
 
     try:
         # on récupère le nombre de pages totales de chaque ville
@@ -99,6 +103,15 @@ def scraping_url(debut):
 
 # Scrap du contenu de chaque annonces scrapées
 def scraping(urls_list):
+    """
+    Scraping function - 2nd part :
+    Go throw all the URLs to collect datas about the activities
+    
+    One parameter : the list of all activities URL
+    
+    Returns 9 lists : all the datas, for each activity  
+    """
+    
     compteur = 1
     print('itérations nécessaires : ', len(urls_list) + 1)
 
@@ -211,7 +224,16 @@ def scraping(urls_list):
 # =============================================================================
 
 def main():
-    urls_list, prices_list, nb_visits_list = scraping_url(debut)
+    """
+    Main function 
+    Run the program, 
+    collect the list returned by the functions in order to create a dataframe using Pandas method, before convertir it into a csv file
+    
+    No parameter
+    
+    No return
+    """
+    urls_list, prices_list, nb_visits_list = scraping_url()
     titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list = scraping(
         urls_list)
 
