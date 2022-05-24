@@ -42,12 +42,11 @@ def scraping_url():
     """
     Scraping function - 1st part :
     Get the URLs of all activities, by first getting the exact number of pages for each city
-    
     No parameter
-    
-    Returns 3 lists : the URLs of the activities, their prices and the number of visits each had   
+
+    :return: 3 lists - the URLs of the activities, their prices and the number of visits each had
+    :rtype: list
     """
-    
     cities_and_end_page_mat = []
     debut = 1
 
@@ -105,11 +104,11 @@ def scraping_url():
 def scraping(urls_list):
     """
     Scraping function - 2nd part :
-    Go throw all the URLs to collect datas about the activities
-    
-    One parameter : the list of all activities URL
-    
-    Returns 9 lists : all the datas, for each activity  
+    Go through all the URLs to collect datas about the activities
+
+    :param list urls_list: the list of all the activities' URLs
+    :return:  9 lists - all the datas, for each activity
+    :rtype: list
     """
     
     compteur = 1
@@ -225,14 +224,15 @@ def scraping(urls_list):
 
 def main():
     """
-    Main function 
-    Run the program, 
+    Main function
+    Run the program,
     collect the list returned by the functions in order to create a dataframe using Pandas method, before convertir it into a csv file
-    
+
     No parameter
-    
-    No return
+
+    :return: No return
     """
+
     urls_list, prices_list, nb_visits_list = scraping_url()
     titles_list, nb_ratings_list, ratings_list, annulation_list, durations_list, languages_list, cities_list, coord_list, images_list = scraping(
         urls_list)
